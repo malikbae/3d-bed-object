@@ -24,7 +24,6 @@ class Model:
         blanket_vertices, blanket_indices = Bed.get_blanket_data()
         back_side_blanket_vertices, back_side_blanket_indices = Bed.get_back_side_blanket_data()
 
-
         bed_indices = bed_indices + int(len(frame_vertices) / 6)
 
         total_length = len(frame_vertices) + len(bed_vertices)

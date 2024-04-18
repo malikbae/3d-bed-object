@@ -1,6 +1,6 @@
 import glfw
 from OpenGL.GL import *
-import pyrr
+import numpy as np
 from window import Window
 from shader import Shader
 from model import Model
@@ -49,19 +49,37 @@ glClearColor(0.2, 0.2, 0.2, 1)
 glEnable(GL_DEPTH_TEST)
 
 rotation_loc = glGetUniformLocation(shader_program.program, "rotation")
-scale_factor = 1.4
-scale_matrix = pyrr.matrix44.create_from_scale([scale_factor, scale_factor, scale_factor])
+scale_factor = 1.2
+scale_matrix = np.array([
+    [scale_factor, 0.0, 0.0, 0.0],
+    [0.0, scale_factor, 0.0, 0.0],
+    [0.0, 0.0, scale_factor, 0.0],
+    [0.0, 0.0, 0.0, 1.0]
+], dtype=np.float32)
 
 while not window.should_close():
     window.poll_events()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    rot_x = pyrr.Matrix44.from_x_rotation(0.5 * glfw.get_time())
-    rot_y = pyrr.Matrix44.from_y_rotation(0.8 * glfw.get_time())
+    time = glfw.get_time()
 
-    rotation_matrix = pyrr.matrix44.multiply(rot_x, rot_y)
+    rot_x = rot_x = np.array([
+        [1.0, 0.0, 0.0, 0.0],
+        [0.0, np.cos(0.5 * time), -np.sin(0.5 * time), 0.0],
+        [0.0, np.sin(0.5 * time), np.cos(0.5 * time), 0.0],
+        [0.0, 0.0, 0.0, 1.0]
+    ], dtype=np.float32)
 
-    transform_matrix = pyrr.matrix44.multiply(rotation_matrix, scale_matrix)
+    rot_y = np.array([
+        [np.cos(0.8 * time), 0.0, np.sin(0.8 * time), 0.0],
+        [0.0, 1.0, 0.0, 0.0],
+        [-np.sin(0.8 * time), 0.0, np.cos(0.8 * time), 0.0],
+        [0.0, 0.0, 0.0, 1.0]
+    ], dtype=np.float32)
+
+    rotation_matrix = np.dot(rot_x, rot_y)
+
+    transform_matrix = np.dot(rotation_matrix, scale_matrix)
 
     glUniformMatrix4fv(rotation_loc, 1, GL_FALSE, transform_matrix)
 
